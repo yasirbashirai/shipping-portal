@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+  Frontend dependency injection — registers observer for order placement
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Framework\Event\ManagerInterface">
+        <arguments>
+            <argument name="observers" xsi:type="array">
+                <item name="shippingportal_order_placed" xsi:type="array">
+                    <item name="instance" xsi:type="string">DotlessAgency\ShippingPortal\Observer\OrderPlaced</item>
+                    <item name="event" xsi:type="string">sales_order_place_after</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+</config>

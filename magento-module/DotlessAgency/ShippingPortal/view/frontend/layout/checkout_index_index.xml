@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!--
+  Injects shipping widget mount point and JS into Magento checkout page
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="checkout.root">
+            <block class="Magento\Framework\View\Element\Template"
+                   name="shipping.portal.widget"
+                   template="DotlessAgency_ShippingPortal::shipping-widget.phtml"
+                   after="-"/>
+        </referenceContainer>
+    </body>
+</page>

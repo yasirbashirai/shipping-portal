@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+  Default configuration values for ShippingPortal module
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <carriers>
+            <shippingportal>
+                <active>1</active>
+                <title>LTL Freight Shipping</title>
+                <name>Shipping Portal</name>
+                <portal_api_url>http://localhost:3001</portal_api_url>
+                <api_secret_key/>
+                <origin_zip>30301</origin_zip>
+                <source_website>cabinets_deals</source_website>
+                <sallowspecific>0</sallowspecific>
+                <model>DotlessAgency\ShippingPortal\Model\Carrier\ShippingPortal</model>
+            </shippingportal>
+        </carriers>
+    </default>
+</config>

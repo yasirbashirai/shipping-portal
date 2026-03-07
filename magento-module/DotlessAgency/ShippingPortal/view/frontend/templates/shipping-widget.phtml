@@ -1,0 +1,21 @@
+<?php
+/**
+ * Mount point for the React shipping widget
+ * Injects the compiled widget bundle and configuration
+ */
+$portalApiUrl = $this->_scopeConfig->getValue('carriers/shippingportal/portal_api_url');
+$sourceWebsite = $this->_scopeConfig->getValue('carriers/shippingportal/source_website');
+$sourceMap = [
+    'cabinets_deals' => 'CABINETS_DEALS',
+    'northville_cabinetry' => 'NORTHVILLE_CABINETRY',
+];
+?>
+
+<div id="shipping-widget" data-testid="shipping-widget-mount"></div>
+
+<script>
+    window.__SHIPPING_PORTAL_API = '<?= /* @noEscape */ $portalApiUrl ?>';
+    window.__SHIPPING_PORTAL_SOURCE = '<?= /* @noEscape */ ($sourceMap[$sourceWebsite] ?? 'CABINETS_DEALS') ?>';
+</script>
+
+<script type="module" src="<?= /* @noEscape */ $portalApiUrl ?>/shipping-widget.js"></script>

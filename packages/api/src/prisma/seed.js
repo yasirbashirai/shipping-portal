@@ -1,5 +1,12 @@
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+dotenv.config({ path: resolve(__dirname, '../../../../.env') });
 
 const prisma = new PrismaClient();
 
@@ -120,7 +127,7 @@ async function main() {
         totalCost: 250 + (j * 50) + (i * 10),
         transitDays: 3 + j,
         estimatedDelivery: new Date(Date.now() + (3 + j) * 86400000),
-        rawResponse: { mock: true, carrier: c },
+        rawResponse: JSON.stringify({ mock: true, carrier: c }),
         isSelected: j === 0,
       })),
     });

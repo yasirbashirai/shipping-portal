@@ -3,66 +3,32 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
-// ─── ENUMS ────────────────────────────────────────────────────────────────────
-
-enum OrderStatus {
-  PENDING
-  PROCESSING
-  BOOKED
-  IN_TRANSIT
-  DELIVERED
-  CANCELLED
-  ON_HOLD
-}
-
-enum DeliveryLocationType {
-  RESIDENTIAL
-  COMMERCIAL
-}
-
-enum DeliveryMethod {
-  CURBSIDE
-  INSIDE_DELIVERY
-}
-
-enum CabinetType {
-  RTA
-  ASSEMBLED
-}
-
-enum CarrierName {
-  XPO
-  RL_CARRIERS
-  SEFL
-  FEDEX_FREIGHT
-}
-
-enum SourceWebsite {
-  CABINETS_DEALS
-  NORTHVILLE_CABINETRY
-}
-
-enum UserRole {
-  OWNER
-  STAFF
-}
-
 // ─── MODELS ───────────────────────────────────────────────────────────────────
+// Note: SQLite does not support enums, so enum fields use String type.
+// Valid values are enforced at the application layer via Zod validation.
+//
+// OrderStatus: PENDING | PROCESSING | BOOKED | IN_TRANSIT | DELIVERED | CANCELLED | ON_HOLD
+// DeliveryLocationType: RESIDENTIAL | COMMERCIAL
+// DeliveryMethod: CURBSIDE | INSIDE_DELIVERY
+// CabinetType: RTA | ASSEMBLED
+// CarrierName: XPO | RL_CARRIERS | SEFL | FEDEX_FREIGHT
+// SourceWebsite: CABINETS_DEALS | NORTHVILLE_CABINETRY
+// UserRole: OWNER | STAFF
 
 model Customer {
-  id            String        @id @default(cuid())
-  email         String        @unique
+  id            String   @id @default(cuid())
+  email         String   @unique
   firstName     String
   lastName      String
   phone         String?
   magentoId     String?
-  sourceWebsite SourceWebsite
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  sourceWebsite String   // SourceWebsite enum
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
   orders        Order[]
 
   @@index([email])
@@ -70,28 +36,28 @@ model Customer {
 }
 
 model Order {
-  id               String        @id @default(cuid())
-  orderNumber      String        @unique
-  magentoOrderId   String?       @unique
-  sourceWebsite    SourceWebsite
-  status           OrderStatus   @default(PENDING)
-  customer         Customer      @relation(fields: [customerId], references: [id])
-  customerId       String
-  shipmentDetails  ShipmentDetails?
-  rateQuotes       RateQuote[]
-  selectedRateId   String?
-  selectedRate     RateQuote?    @relation("SelectedRate", fields: [selectedRateId], references: [id])
-  trackingNumber   String?
-  carrierBooked    CarrierName?
+  id                String           @id @default(cuid())
+  orderNumber       String           @unique
+  magentoOrderId    String?          @unique
+  sourceWebsite     String           // SourceWebsite enum
+  status            String           @default("PENDING") // OrderStatus enum
+  customer          Customer         @relation(fields: [customerId], references: [id])
+  customerId        String
+  shipmentDetails   ShipmentDetails?
+  rateQuotes        RateQuote[]
+  selectedRateId    String?
+  selectedRate      RateQuote?       @relation("SelectedRate", fields: [selectedRateId], references: [id])
+  trackingNumber    String?
+  carrierBooked     String?          // CarrierName enum
   estimatedDelivery DateTime?
-  actualDelivery   DateTime?
-  totalAmount      Decimal?      @db.Decimal(10, 2)
-  shippingCost     Decimal?      @db.Decimal(10, 2)
-  notes            String?       @db.Text
-  adminNotes       String?       @db.Text
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  auditLogs        AuditLog[]
+  actualDelivery    DateTime?
+  totalAmount       Float?
+  shippingCost      Float?
+  notes             String?
+  adminNotes        String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  auditLogs         AuditLog[]
 
   @@index([status])
   @@index([sourceWebsite])
@@ -100,43 +66,43 @@ model Order {
 }
 
 model ShipmentDetails {
-  id                   String               @id @default(cuid())
-  order                Order                @relation(fields: [orderId], references: [id])
-  orderId              String               @unique
+  id                   String   @id @default(cuid())
+  order                Order    @relation(fields: [orderId], references: [id])
+  orderId              String   @unique
   originZip            String
   destinationZip       String
   destinationCity      String?
   destinationState     String?
   cabinetCount         Int
-  cabinetType          CabinetType
-  hasLazySusan         Boolean              @default(false)
+  cabinetType          String   // CabinetType enum
+  hasLazySusan         Boolean  @default(false)
   lazySusanQty         Int?
-  hasVentHood          Boolean              @default(false)
+  hasVentHood          Boolean  @default(false)
   ventHoodQty          Int?
-  hasDrawers           Boolean              @default(false)
+  hasDrawers           Boolean  @default(false)
   drawerQty            Int?
-  deliveryLocationType DeliveryLocationType
-  deliveryMethod       DeliveryMethod
-  appointmentRequired  Boolean              @default(false)
-  estimatedWeight      Decimal              @db.Decimal(10, 2)
+  deliveryLocationType String   // DeliveryLocationType enum
+  deliveryMethod       String   // DeliveryMethod enum
+  appointmentRequired  Boolean  @default(false)
+  estimatedWeight      Float
   freightClass         String?
   estimatedPallets     Int?
-  createdAt            DateTime             @default(now())
+  createdAt            DateTime @default(now())
 }
 
 model RateQuote {
-  id                String      @id @default(cuid())
-  order             Order       @relation(fields: [orderId], references: [id])
+  id                String   @id @default(cuid())
+  order             Order    @relation(fields: [orderId], references: [id])
   orderId           String
-  carrier           CarrierName
+  carrier           String   // CarrierName enum
   serviceLevel      String
-  totalCost         Decimal     @db.Decimal(10, 2)
+  totalCost         Float
   transitDays       Int
   estimatedDelivery DateTime
-  rawResponse       Json
-  quotedAt          DateTime    @default(now())
-  isSelected        Boolean     @default(false)
-  selectedOrders    Order[]     @relation("SelectedRate")
+  rawResponse       String   // JSON stored as string for SQLite
+  quotedAt          DateTime @default(now())
+  isSelected        Boolean  @default(false)
+  selectedOrders    Order[]  @relation("SelectedRate")
 }
 
 model AdminUser {
@@ -144,7 +110,7 @@ model AdminUser {
   email         String         @unique
   name          String
   password      String
-  role          UserRole       @default(STAFF)
+  role          String         @default("STAFF") // UserRole enum
   isActive      Boolean        @default(true)
   lastLoginAt   DateTime?
   createdAt     DateTime       @default(now())

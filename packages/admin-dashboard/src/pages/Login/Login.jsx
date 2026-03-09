@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { LogIn, AlertCircle } from 'lucide-react';
+import { LogIn, AlertCircle, Play } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore.js';
 import * as endpoints from '../../api/endpoints.js';
+import { DEMO_USER, DEMO_TOKEN } from '../../api/mockData.js';
 
 const schema = z.object({
   email: z.string().email('Valid email required'),
@@ -24,6 +25,16 @@ export default function Login() {
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
   });
+
+  const handleDemoLogin = () => {
+    localStorage.setItem('demoMode', 'true');
+    setAuth({
+      user: DEMO_USER,
+      accessToken: DEMO_TOKEN,
+      refreshToken: DEMO_TOKEN,
+    });
+    navigate('/admin');
+  };
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -99,6 +110,19 @@ export default function Login() {
             )}
           </button>
         </form>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"></div></div>
+          <div className="relative flex justify-center text-sm"><span className="bg-white px-2 text-gray-400">or</span></div>
+        </div>
+
+        <button
+          onClick={handleDemoLogin}
+          className="w-full h-10 bg-emerald-600 text-white font-medium rounded-md hover:bg-emerald-700 transition flex items-center justify-center gap-2"
+        >
+          <Play size={16} />
+          Demo Login (No Backend Required)
+        </button>
       </div>
     </div>
   );

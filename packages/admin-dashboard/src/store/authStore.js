@@ -18,6 +18,7 @@ export const useAuthStore = create((set, get) => ({
   logout: () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('demoMode');
     set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false });
   },
 
